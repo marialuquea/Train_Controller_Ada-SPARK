@@ -30,7 +30,6 @@ is
    is
    begin
       d(n) := b;
-      d(d'First) := b;
    end SubstituteBird;
 
 
