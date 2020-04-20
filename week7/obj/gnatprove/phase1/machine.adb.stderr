@@ -1,0 +1,2 @@
+machine.adb:19:03: missing "end if;" for "if" at line 17
+machine.adb:21:14: missing ";"
