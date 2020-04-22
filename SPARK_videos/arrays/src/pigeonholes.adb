@@ -34,6 +34,28 @@ is
 
 
 
+   function birdIndex(d: PigeonHole; b: Box) return PH_Index
+   is
+      pos : PH_Index := d'First;
+   begin
+      while (pos < d'Last) loop
+         if d(pos) = b then
+            return pos;
+         end if;
+         -- we have to specify what has to be true by this point
+         -- if we get outside the if loop and we haven't returned pos,
+         -- every previous position was not equal to b
+         pragma Loop_Invariant
+           (for all I in d'First..pos => d(I) /= b);
+         pos := pos + 1;
+      end loop;
+      return pos;
+   end birdIndex;
+
+
+
+
+
 
    -- A while loop destroys information but are arguably more powerful
    -- A for loop doesn't destroy information

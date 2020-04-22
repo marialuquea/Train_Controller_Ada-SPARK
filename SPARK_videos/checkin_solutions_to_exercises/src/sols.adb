@@ -14,5 +14,4 @@ is
       end if;
    end P2;
 
-
 end Sols;
