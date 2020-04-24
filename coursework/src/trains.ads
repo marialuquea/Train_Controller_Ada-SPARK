@@ -47,6 +47,21 @@ is
      (reactor.c_rods >= 1);
 
    -- Procedures and Functions
+   procedure loadReactor with
+     Global => (In_Out => reactor),
+     Pre => reactor.loaded = Offline,
+     Post => reactor.loaded = Online;
+
+   procedure addControlRod with
+     Global => (In_Out => train),
+     Pre => train.train_reactor.c_rods < ControlRods'Last,
+     Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old + 1;
+
+   procedure removeControlRod with
+     Global => (In_Out => train),
+     Pre => train.train_reactor.c_rods > ControlRods'First,
+     Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old - 1;
+
    procedure addCarriage with
      Global => (In_Out => train),
      Pre => train.speed = 0 and then train.carriages < Carriage'Last,
