@@ -1,8 +1,10 @@
+with Ada.Text_IO; use Ada.Text_IO;
+
 package trains with SPARK_Mode
 is
 
    type ControlRods is range 1..5;
-   type Electricity is range 0..10; -- not currently being used
+   type Electricity is range 0..100;
    type WaterSupply is range 1..10;
    type ReactorTemperature is range 0..10;
    type ReactorHeat is (Normal, Overheated);
@@ -18,6 +20,7 @@ is
       temp : ReactorTemperature;
       overheat : ReactorHeat;
       loaded : IsLoaded;
+      energy : Electricity;
    end record;
 
    type Trains is record
@@ -34,7 +37,8 @@ is
                          water => 1,
                          temp => 0,
                          overheat => Normal,
-                         loaded => Online);
+                         loaded => Online,
+                         energy => 0);
    train : Trains := (train_reactor => reactor,
                        carriages => 0,
                        electricity => 0,
@@ -44,27 +48,42 @@ is
 
    -- Invariants that must always be true
    function Invariant return Boolean is
-     (reactor.c_rods >= 1);
+     (train.train_reactor.c_rods >= ControlRods'First);
 
    -- Procedures and Functions
    procedure loadReactor with
-     Global => (In_Out => reactor),
-     Pre => reactor.loaded = Offline,
-     Post => reactor.loaded = Online;
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.train_reactor.loaded = Offline,
+     Post => train.train_reactor.loaded = Online;
+
+   procedure unloadReactor with
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.train_reactor.loaded = Online and then train.speed = 0,
+     Post => train.train_reactor.loaded = Offline;
 
    procedure addControlRod with
-     Global => (In_Out => train),
-     Pre => train.train_reactor.c_rods < ControlRods'Last,
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => Invariant and then train.train_reactor.c_rods < ControlRods'Last,
      Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old + 1;
 
    procedure removeControlRod with
-     Global => (In_Out => train),
-     Pre => train.train_reactor.c_rods > ControlRods'First,
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => Invariant and then train.train_reactor.c_rods > ControlRods'First,
      Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old - 1;
 
    procedure addCarriage with
-     Global => (In_Out => train),
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => train.speed = 0 and then train.carriages < Carriage'Last,
      Post => train.carriages = train.carriages'Old + 1;
+
+   procedure removeCarriage with
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.carriages > Carriage'First,
+     Post => train.carriages = train.carriages'Old - 1;
+
+   procedure produceElectricity with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
+
+
 
 end trains;
