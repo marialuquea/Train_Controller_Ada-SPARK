@@ -7,6 +7,8 @@ procedure Main is
    Last : Natural;
 
    task Maria;
+   task moooove;
+
    task body Maria is
    begin
       loop
@@ -19,11 +21,19 @@ procedure Main is
          when '4' => unloadReactor;
          when '5' => addControlRod;
          when '6' => removeControlRod;
-         when others => exit;
+         when others => abort moooove; abort produceEnergy; exit;
          end case;
       end loop;
       delay 0.1;
    end Maria;
+
+   task body moooove is
+   begin
+      loop
+         startTrain;
+         delay 3.0;
+      end loop;
+   end moooove;
 
 begin
    --  Insert code here.

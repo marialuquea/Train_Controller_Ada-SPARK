@@ -5,8 +5,8 @@ is
 
    type ControlRods is range 1..5;
    type Electricity is range 0..100;
-   type WaterSupply is range 1..10;
-   type ReactorTemperature is range 0..10;
+   type WaterSupply is range 0..100;
+   type ReactorTemperature is range 0..1000;
    type ReactorHeat is (Normal, Overheated);
    type Moving is (True, False);
    type IsLoaded is (Online, Offline); -- offline for maintenance
@@ -20,30 +20,26 @@ is
       temp : ReactorTemperature;
       overheat : ReactorHeat;
       loaded : IsLoaded;
-      energy : Electricity;
    end record;
 
    type Trains is record
       train_reactor : Reactors;
       carriages : Carriage;
-      electricity : Integer;
+      energy : Electricity;
       speed: Integer;
-      maxAbsoluteSpeed: Integer;
       isMoving : Moving;
    end record;
 
    -- Initialising global variables
    reactor : Reactors := (c_rods => 5,
-                         water => 1,
+                         water => 100,
                          temp => 0,
                          overheat => Normal,
-                         loaded => Online,
-                         energy => 0);
+                         loaded => Online);
    train : Trains := (train_reactor => reactor,
                        carriages => 0,
-                       electricity => 0,
+                       energy => 0,
                        speed => 0,
-                       maxAbsoluteSpeed => MAXSPEED,
                        isMoving => False);
 
    -- Invariants that must always be true
@@ -84,6 +80,25 @@ is
    procedure produceElectricity with
      Global => (In_Out => (train, Ada.Text_IO.File_System));
 
+   procedure startTrain with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
+
+   procedure stopTrain with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
+
+--     function calculateElectricity (x : ControlRods) return Electricity;
+
+   procedure increSpeed with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
+
+   procedure overHeat with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
+
+   procedure useWater with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
+
+   procedure rechargeWater with
+     Global => (In_Out => (train, Ada.Text_IO.File_System));
 
 
 end trains;
