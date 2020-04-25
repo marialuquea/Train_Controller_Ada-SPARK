@@ -77,8 +77,9 @@ is
 
    procedure startTrain is
    begin
-      train.isMoving := True;
-      Put_Line("TRAIN STARTED");
+      if (train.isMoving = False and then Invariant and then train.train_reactor.loaded = Loaded) then
+         train.isMoving := True;
+      end if;
    end startTrain;
 
    procedure stopTrain is
@@ -94,7 +95,8 @@ is
    procedure setMaxSpeed is
    begin
       train.maxSpeedAvailable := Integer(train.energy) - (5 * Integer(train.carriages));
-      if (train.maxSpeedAvailable < 0) then
+      if (train.maxSpeedAvailable <= 0) then
+         Put_Line("");
          Put_Line("TOO MANY CARRIAGES AND CONTROL RODS. Reduce one to be able to move the train.");
          stopTrain;
       end if;
@@ -102,7 +104,8 @@ is
 
    procedure increSpeed is
    begin
-      if (train.speed < MAXSPEED and then train.speed < train.maxSpeedAvailable) then
+      if (train.speed < MAXSPEED and then train.speed < train.maxSpeedAvailable
+         and then train.isMoving = True and then train.train_reactor.loaded = Loaded) then
          train.speed := train.speed + 1;
       else
          Put_Line("SPEED LIMIT REACHED");

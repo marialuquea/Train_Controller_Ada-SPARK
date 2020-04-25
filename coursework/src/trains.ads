@@ -92,12 +92,15 @@ is
      Pre => train.train_reactor.temp < ReactorTemperature'Last - 5
        and then train.train_reactor.c_rods >= ControlRods'First
        and then train.isMoving = True
+       and then train.speed < MAXSPEED
+       and then train.speed < train.maxSpeedAvailable
+       and then train.train_reactor.loaded = Loaded
        and then Invariant,
      Post => train.train_reactor.temp > train.train_reactor.temp'Old
        and then train.energy /= 0;
 
    procedure startTrain with
-     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Global => (In_Out => train),
      Pre => train.isMoving = False
        and then Invariant
        and then train.train_reactor.loaded = Loaded,
@@ -116,7 +119,8 @@ is
      Pre => Invariant
        and then train.train_reactor.loaded = Loaded
        and then train.speed < MAXSPEED
-       and then train.speed < train.maxSpeedAvailable,
+       and then train.speed < train.maxSpeedAvailable
+       and then train.isMoving = True,
      Post => train.speed = train.speed'Old + 1;
 
    procedure overHeat with

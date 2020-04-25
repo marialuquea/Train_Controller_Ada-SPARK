@@ -91,7 +91,9 @@ procedure Main is
             end if;
          elsif (inp = "5") then
             if (train.isMoving = True) then stopTrain;
-            else startTrain;
+            elsif (train.train_reactor.loaded = Loaded) then
+               startTrain;
+            else Put_Line("Load reactor to start train.");
             end if;
          elsif (inp = "6") then
             if (train.isMoving = true) then
