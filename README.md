@@ -10,7 +10,7 @@
 
 > UNIX based system
 
-- Execute [file](https://github.com/marialuquea/FASE/blob/master/src/main.adb) from your terminal, with `./main`.
+- Execute [main file](https://github.com/marialuquea/FASE/blob/master/src/main.adb) from your terminal, with `./main`.
 
 > Windows based system:
 
@@ -19,6 +19,6 @@
 ---
 
 ## Controller Structure
-* Program specification with preconditions and postconditions: [file](https://github.com/marialuquea/FASE/blob/master/src/trains.ads)
-* Program implementation with procedures and functions: [file](https://github.com/marialuquea/FASE/blob/master/src/trains.adb)
-* Main script: [file](https://github.com/marialuquea/FASE/blob/master/src/main.adb)
+* Program specification with preconditions and postconditions: trains.ads [file](https://github.com/marialuquea/FASE/blob/master/src/trains.ads)
+* Program implementation with procedures and functions: trains.adb [file](https://github.com/marialuquea/FASE/blob/master/src/trains.adb)
+* Main script: main [file](https://github.com/marialuquea/FASE/blob/master/src/main.adb)
