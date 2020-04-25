@@ -1,4 +1,4 @@
-# A Train controller written in Ada-SPARK.
+# A Train controller written in Ada-SPARK
 
 * Uses Preconditions and Postconditions in order to create a safety critical system
 * Compiles at SPARK gold level guaranteeing the absence of run time errors
@@ -6,11 +6,11 @@
 
 ---
 
-## How do I run this?
+## How to run the program
 
 > UNIX based system
 
-- Execute [file](https://github.com/marialuquea/FASE/blob/master/obj/main) from your terminal, with `./main`.
+- Execute [file](https://github.com/marialuquea/FASE/blob/master/src/main.adb) from your terminal, with `./main`.
 
 > Windows based system:
 
