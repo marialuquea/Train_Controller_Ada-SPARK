@@ -5,15 +5,15 @@ is
 
    procedure loadReactor is
    begin
-      train.train_reactor.loaded := Online;
-      Put_Line("Reactor state is:"& train.train_reactor.loaded'Image);
+      train.train_reactor.loaded := Loaded;
+      Put_Line("Reactor state:"& train.train_reactor.loaded'Image);
    end loadReactor;
 
    procedure unloadReactor is
    begin
-      if (train.train_reactor.loaded = Online and then train.speed = 0) then
-         train.train_reactor.loaded := Offline;
-         Put_Line("Reactor state is:"& train.train_reactor.loaded'Image);
+      if (train.train_reactor.loaded = Loaded and then train.speed = 0) then
+         train.train_reactor.loaded := Unloaded;
+         Put_Line("Reactor state:"& train.train_reactor.loaded'Image);
       end if;
    end unloadReactor;
 
@@ -127,25 +127,5 @@ is
          Put_Line("Water recharged: "&train.train_reactor.water'Image);
       end if;
    end rechargeWater;
-
-   --     function calculateElectricity (x : ControlRods) return Electricity is
---     begin
---        if (x = 1) then
---           return Electricity'Last;
---        else if (x = 2) then
---              return (Electricity'Last * 80/100);
---           else if (x = 3) then
---                 return (Electricity'Last * 60/100);
---              else if (x = 4) then
---                    return (Electricity'Last * 40/100);
---                 else if (x = 5) then
---                       return (Electricity'Last * 20/100);
---                    end if;
---                 end if;
---              end if;
---           end if;
---        end if;
---        return Electricity'First;
---     end calculateElectricity;
 
 end trains;

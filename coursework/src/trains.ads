@@ -9,7 +9,7 @@ is
    type ReactorTemperature is range 0..1000;
    type ReactorHeat is (Normal, Overheated);
    type Moving is (True, False);
-   type IsLoaded is (Online, Offline); -- offline for maintenance
+   type IsLoaded is (Loaded, Unloaded); -- offline for maintenance
    type Carriage is range 0..10;
 
    MAXSPEED : constant := 100;
@@ -35,7 +35,7 @@ is
                          water => 100,
                          temp => 0,
                          overheat => Normal,
-                         loaded => Online);
+                         loaded => Loaded);
    train : Trains := (train_reactor => reactor,
                        carriages => 0,
                        energy => 0,
@@ -49,13 +49,13 @@ is
    -- Procedures and Functions
    procedure loadReactor with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.train_reactor.loaded = Offline,
-     Post => train.train_reactor.loaded = Online;
+     Pre => train.train_reactor.loaded = Unloaded,
+     Post => train.train_reactor.loaded = Loaded;
 
    procedure unloadReactor with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.train_reactor.loaded = Online and then train.speed = 0,
-     Post => train.train_reactor.loaded = Offline;
+     Pre => train.train_reactor.loaded = Loaded and then train.speed = 0,
+     Post => train.train_reactor.loaded = Unloaded;
 
    procedure addControlRod with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),

@@ -36,18 +36,8 @@ procedure Main is
    Put_Line("");
    end printTitle;
 
-   procedure manageCarriages is
+   procedure printOptions is
    begin
-      Put_Line("Options");
-      Put_Line("1 - Add carriage");
-      Put_Line("2 - Remove carriage");
-   end manageCarriages;
-
-   task Maria;
-
-   task body Maria is
-   begin
-      printTitle;
       Put_Line("  ---------------------------");
       Put_Line("  |         Options:        |");
       Put_Line("  | 1 - See train info      |");
@@ -56,34 +46,59 @@ procedure Main is
       Put_Line("  | 4 - Manage control rods |");
       Put_Line("  | 5 - Start/Stop Train    |");
       Put_Line("  | 6 - Recharge water      |");
-      Put_Line("  | 7 - Exit                |");
+      Put_Line("  | 7 - Open this pannel    |");
+      Put_Line("  | 8 - Exit                |");
       Put_Line("  ---------------------------");
+   end printOptions;
+
+   task Maria;
+
+   task body Maria is
+   begin
+      printTitle;
+      printOptions;
       loop
 
---           Get_Line(Str,Last);
-
          Put_Line("");
-         Put("Enter a command: ");
+         Put("Enter a command (7 to view options): ");
          Get(inp);
 
-         if (inp = "1") then
-            printTrain;
-
+         if (inp = "1") then printTrain;
          elsif (inp = "2") then
-            addCarriage;
-
+            Put_Line("a - add Carriage");
+            Put_Line("r - remove Carriage");
+            Get(inp);
+            if(inp = "a") then addCarriage;
+            elsif (inp = "r") then removeCarriage;
+            end if;
+         elsif (inp = "3") then
+            if (train.train_reactor.loaded = Loaded and then train.speed = 0) then
+               unloadReactor;
+            else loadReactor;
+            end if;
+         elsif (inp = "4") then
+            Put_Line("a - add Control Rod");
+            Put_Line("r - remove Control Rod");
+            Get(inp);
+            if(inp = "a") then addControlRod;
+            elsif (inp = "r") then removeControlRod;
+            end if;
+         elsif (inp = "5") then
+            if (train.isMoving = True) then stopTrain;
+            else
+                  startTrain;
+                  -- increment speed
+                  -- produce electricity
+            end if;
+         elsif (inp = "6") then
+            if (train.isMoving = true) then
+               Put_Line("Can't recharge water while train is moving. Enter 5 to stop train.");
+            else rechargeWater;
+            end if;
+         elsif (inp = "7") then printOptions;
          else exit;
          end if;
 
---           case Str(1) is
---           when '1' => printTrain;
---           when '2' => addCarriage;
---           when '3' => removeCarriage;
---           when '4' => loadReactor;
---           when '5' => unloadReactor;
---           when '6' => addControlRod;
---           when others => exit;
---           end case;
       end loop;
       delay 0.1;
    end Maria;
