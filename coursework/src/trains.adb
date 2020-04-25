@@ -49,26 +49,6 @@ is
       end if;
    end removeCarriage;
 
---     function calculateElectricity (x : ControlRods) return Electricity is
---     begin
---        if (x = 1) then
---           return Electricity'Last;
---        else if (x = 2) then
---              return (Electricity'Last * 80/100);
---           else if (x = 3) then
---                 return (Electricity'Last * 60/100);
---              else if (x = 4) then
---                    return (Electricity'Last * 40/100);
---                 else if (x = 5) then
---                       return (Electricity'Last * 20/100);
---                    end if;
---                 end if;
---              end if;
---           end if;
---        end if;
---        return Electricity'First;
---     end calculateElectricity;
-
    procedure produceElectricity is
    begin
       if (train.train_reactor.temp < ReactorTemperature'Last - 5) then
@@ -99,7 +79,7 @@ is
    procedure startTrain is
    begin
       train.isMoving := True;
-      Put_Line("Train moving: "& train.isMoving'Image & " with speed "&train.speed'Image);
+      Put_Line("TRAIN STARTED");
    end startTrain;
 
    procedure stopTrain is
@@ -148,6 +128,24 @@ is
       end if;
    end rechargeWater;
 
-
+   --     function calculateElectricity (x : ControlRods) return Electricity is
+--     begin
+--        if (x = 1) then
+--           return Electricity'Last;
+--        else if (x = 2) then
+--              return (Electricity'Last * 80/100);
+--           else if (x = 3) then
+--                 return (Electricity'Last * 60/100);
+--              else if (x = 4) then
+--                    return (Electricity'Last * 40/100);
+--                 else if (x = 5) then
+--                       return (Electricity'Last * 20/100);
+--                    end if;
+--                 end if;
+--              end if;
+--           end if;
+--        end if;
+--        return Electricity'First;
+--     end calculateElectricity;
 
 end trains;

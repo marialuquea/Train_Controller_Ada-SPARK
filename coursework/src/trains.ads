@@ -40,7 +40,7 @@ is
                        carriages => 0,
                        energy => 0,
                        speed => 0,
-                       isMoving => False);
+                      isMoving => False);
 
    -- Invariants that must always be true
    function Invariant return Boolean is
