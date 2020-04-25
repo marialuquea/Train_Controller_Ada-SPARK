@@ -19,6 +19,6 @@
 ---
 
 ## Controller Structure
-* Program specification with preconditions and postconditions: trains.ads [file](https://github.com/marialuquea/FASE/blob/master/src/trains.ads)
-* Program implementation with procedures and functions: trains.adb [file](https://github.com/marialuquea/FASE/blob/master/src/trains.adb)
-* Main script: main [file](https://github.com/marialuquea/FASE/blob/master/src/main.adb)
+* Program specification with preconditions and postconditions: [trains.ads](https://github.com/marialuquea/FASE/blob/master/src/trains.ads)
+* Program implementation with procedures and functions: [trains.adb](https://github.com/marialuquea/FASE/blob/master/src/trains.adb)
+* Main script: [main file](https://github.com/marialuquea/FASE/blob/master/src/main.adb)
