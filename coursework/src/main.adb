@@ -102,7 +102,6 @@ procedure Main is
          elsif (inp = "8") then abort Electric; abort CheckHeat; exit;
          else abort Electric; abort CheckHeat; exit;
          end if;
-         delay 1.0;
       end loop;
    end Maria;
 
@@ -113,6 +112,9 @@ procedure Main is
             produceElectricity;
             setMaxSpeed;
             increSpeed;
+            Put_Line("Max train speed:" & train.maxSpeedAvailable'Image
+                     & " | Actual speed: " & train.speed'Image
+                     & " | Reactor temperature: " & train.train_reactor.temp'Image);
          end if;
          delay 0.5;
       end loop;

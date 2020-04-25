@@ -73,7 +73,6 @@ is
             end if;
          end if;
       end if;
-      Put_Line("Reactor's temperature: "&train.train_reactor.temp'Image);
    end produceElectricity;
 
    procedure startTrain is
@@ -87,20 +86,24 @@ is
       train.speed := 0;
       train.energy := 0;
       train.isMoving := False;
+      train.maxSpeedAvailable := 0;
+      train.train_reactor.temp := ReactorTemperature'First;
       Put_Line("Train was stopped.");
    end stopTrain;
 
    procedure setMaxSpeed is
    begin
       train.maxSpeedAvailable := Integer(train.energy) - (5 * Integer(train.carriages));
+      if (train.maxSpeedAvailable < 0) then
+         Put_Line("TOO MANY CARRIAGES AND CONTROL RODS. Reduce one to be able to move the train.");
+         stopTrain;
+      end if;
    end setMaxSpeed;
 
    procedure increSpeed is
    begin
       if (train.speed < MAXSPEED and then train.speed < train.maxSpeedAvailable) then
          train.speed := train.speed + 1;
-         Put("Max train speed:"& train.maxSpeedAvailable'Image);
-         Put_Line(" | Actual speed: "& train.speed'Image);
       else
          Put_Line("SPEED LIMIT REACHED");
       end if;
@@ -110,21 +113,22 @@ is
    begin
       if (train.train_reactor.temp >= 200) then
          train.train_reactor.overheat := Overheated;
+         Put_Line("");
          Put_Line("REACTOR OVERHEATED: "&train.train_reactor.overheat'Image);
       end if;
    end overHeat;
 
    procedure useWater is
    begin
-      -- water supply starts at 100, can be used until 0
-      --  1 water unit reduces heat by 10
       if (train.train_reactor.water > WaterSupply'First + 1 and then
           train.train_reactor.temp >= 200) then
-            train.train_reactor.water := train.train_reactor.water - 2;
-            train.train_reactor.temp := train.train_reactor.temp - 50;
-            Put_Line("Using water supply. Water left: "&train.train_reactor.water'Image);
+         train.train_reactor.water := train.train_reactor.water - 2;
+         train.train_reactor.temp := train.train_reactor.temp - 50;
+         Put_Line(" ");
+         Put_Line("Using water supply. Water left: "&train.train_reactor.water'Image);
       elsif (train.train_reactor.water = 0 and then train.train_reactor.temp >= 200) then
          stopTrain;
+         Put_Line(" ");
          Put_Line("NO MORE WATER - TRAIN WAS STOPPED - REACTOR OVERHEATED");
       end if;
 

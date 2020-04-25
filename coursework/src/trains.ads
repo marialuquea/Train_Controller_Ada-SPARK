@@ -56,22 +56,26 @@ is
 
    procedure unloadReactor with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.train_reactor.loaded = Loaded and then train.speed = 0,
+     Pre => train.train_reactor.loaded = Loaded
+       and then train.speed = 0,
      Post => train.train_reactor.loaded = Unloaded;
 
    procedure addControlRod with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => Invariant and then train.train_reactor.c_rods < ControlRods'Last,
+     Pre => Invariant
+       and then train.train_reactor.c_rods < ControlRods'Last,
      Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old + 1;
 
    procedure removeControlRod with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => Invariant and then train.train_reactor.c_rods > ControlRods'First,
+     Pre => Invariant
+       and then train.train_reactor.c_rods > ControlRods'First,
      Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old - 1;
 
    procedure addCarriage with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.speed = 0 and then train.carriages < Carriage'Last,
+     Pre => train.speed = 0
+       and then train.carriages < Carriage'Last,
      Post => train.carriages = train.carriages'Old + 1;
 
    procedure removeCarriage with
@@ -80,30 +84,59 @@ is
      Post => train.carriages = train.carriages'Old - 1;
 
    procedure setMaxSpeed with
-     Global => (In_Out => (train));
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.isMoving = True;
 
    procedure produceElectricity with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
+     Global => (In_Out => train),
+     Pre => train.train_reactor.temp < ReactorTemperature'Last - 5
+       and then train.train_reactor.c_rods >= ControlRods'First
+       and then train.isMoving = True
+       and then Invariant,
+     Post => train.train_reactor.temp > train.train_reactor.temp'Old
+       and then train.energy /= 0;
 
    procedure startTrain with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.isMoving = False
+       and then Invariant
+       and then train.train_reactor.loaded = Loaded,
+     Post => train.isMoving = True;
 
    procedure stopTrain with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
-
---     function calculateElectricity (x : ControlRods) return Electricity;
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Post => train.speed = 0
+       and then train.energy = 0
+       and then train.isMoving = False
+       and then train.train_reactor.temp = ReactorTemperature'First
+       and then train.maxSpeedAvailable = 0;
 
    procedure increSpeed with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => Invariant
+       and then train.train_reactor.loaded = Loaded
+       and then train.speed < MAXSPEED
+       and then train.speed < train.maxSpeedAvailable,
+     Post => train.speed = train.speed'Old + 1;
 
    procedure overHeat with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => Invariant
+       and then train.train_reactor.temp >= 200
+       and then train.train_reactor.loaded = Loaded
+       and then train.train_reactor.overheat = Normal,
+     Post => train.train_reactor.overheat = Overheated;
 
    procedure useWater with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => Invariant
+       and then train.isMoving = True
+       and then train.train_reactor.temp >= 200,
+     Post => train.train_reactor.temp <= train.train_reactor.temp'Old;
 
    procedure rechargeWater with
-     Global => (In_Out => (train, Ada.Text_IO.File_System));
-
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.speed = 0,
+     Post => train.train_reactor.water = WaterSupply'Last;
 
 end trains;
