@@ -11,16 +11,17 @@ procedure Main is
    procedure printTrain is
    begin
       Put_Line("");
-      Put_Line("-----Train Info-----");
-      Put_Line("carriages: "& train.carriages'Image);
-      Put_Line("electricity: "& train.energy'Image);
-      Put_Line("speed: "& train.speed'Image);
-      Put_Line("----Reactor Info-----");
-      Put_Line("control rods: "& train.train_reactor.c_rods'Image);
-      Put_Line("water: "& train.train_reactor.water'Image);
-      Put_Line("temperature: "& train.train_reactor.temp'Image);
-      Put_Line("overheated: "&train.train_reactor.overheat'Image);
-      Put_Line("state: "&train.train_reactor.loaded'Image);
+      Put_Line("-----TRAIN INFO-----");
+      Put_Line("    carriages:     "& train.carriages'Image);
+      Put_Line("    electricity:   "& train.energy'Image);
+      Put_Line("    speed:         "& train.speed'Image);
+      Put_Line("    max speed:     "& train.maxSpeedAvailable'Image);
+      Put_Line("----REACTOR INFO-----");
+      Put_Line("    control rods:  "& train.train_reactor.c_rods'Image);
+      Put_Line("    water:         "& train.train_reactor.water'Image);
+      Put_Line("    temperature:   "& train.train_reactor.temp'Image);
+      Put_Line("    overheated:    "&train.train_reactor.overheat'Image);
+      Put_Line("    reactor state: "&train.train_reactor.loaded'Image);
       Put_Line("");
    end printTrain;
 
@@ -52,6 +53,8 @@ procedure Main is
    end printOptions;
 
    task Maria;
+   task Electric;
+   task CheckHeat;
 
    task body Maria is
    begin
@@ -68,7 +71,10 @@ procedure Main is
             Put_Line("a - add Carriage");
             Put_Line("r - remove Carriage");
             Get(inp);
-            if(inp = "a") then addCarriage;
+            if(inp = "a") then
+               if (train.speed = 0) then addCarriage;
+               else Put_Line("You can only add carriages if train is not moving.");
+               end if;
             elsif (inp = "r") then removeCarriage;
             end if;
          elsif (inp = "3") then
@@ -85,10 +91,7 @@ procedure Main is
             end if;
          elsif (inp = "5") then
             if (train.isMoving = True) then stopTrain;
-            else
-                  startTrain;
-                  -- increment speed
-                  -- produce electricity
+            else startTrain;
             end if;
          elsif (inp = "6") then
             if (train.isMoving = true) then
@@ -96,12 +99,34 @@ procedure Main is
             else rechargeWater;
             end if;
          elsif (inp = "7") then printOptions;
-         else exit;
+         else abort Electric; abort CheckHeat; exit;
          end if;
-
+         delay 0.1;
       end loop;
-      delay 0.1;
    end Maria;
+
+   task body Electric is
+   begin
+      loop
+         if (train.isMoving = True) then
+            produceElectricity;
+            setMaxSpeed;
+            increSpeed;
+         end if;
+         delay 1.0;
+      end loop;
+   end Electric;
+
+   task body CheckHeat is
+   begin
+      loop
+         if (train.train_reactor.temp >= 200) then
+            overHeat;
+            useWater;
+         end if;
+         delay 1.0;
+      end loop;
+   end CheckHeat;
 
 
 begin

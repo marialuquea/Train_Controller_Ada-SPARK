@@ -10,24 +10,25 @@ is
    type ReactorHeat is (Normal, Overheated);
    type Moving is (True, False);
    type IsLoaded is (Loaded, Unloaded); -- offline for maintenance
-   type Carriage is range 0..10;
+   type Carriage is range 0..5;
 
    MAXSPEED : constant := 100;
 
    type Reactors is record
-      c_rods : ControlRods;
-      water : WaterSupply;
-      temp : ReactorTemperature;
+      c_rods   : ControlRods;
+      water    : WaterSupply;
+      temp     : ReactorTemperature;
       overheat : ReactorHeat;
-      loaded : IsLoaded;
+      loaded   : IsLoaded;
    end record;
 
    type Trains is record
-      train_reactor : Reactors;
-      carriages : Carriage;
-      energy : Electricity;
-      speed: Integer;
-      isMoving : Moving;
+      train_reactor     : Reactors;
+      carriages         : Carriage;
+      energy            : Electricity;
+      speed             : Integer;
+      maxSpeedAvailable : Integer;
+      isMoving          : Moving;
    end record;
 
    -- Initialising global variables
@@ -37,9 +38,10 @@ is
                          overheat => Normal,
                          loaded => Loaded);
    train : Trains := (train_reactor => reactor,
-                       carriages => 0,
-                       energy => 0,
-                       speed => 0,
+                      carriages => 0,
+                      energy => 0,
+                      speed => 0,
+                      maxSpeedAvailable => 0,
                       isMoving => False);
 
    -- Invariants that must always be true
@@ -76,6 +78,9 @@ is
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => train.carriages > Carriage'First,
      Post => train.carriages = train.carriages'Old - 1;
+
+   procedure setMaxSpeed with
+     Global => (In_Out => (train));
 
    procedure produceElectricity with
      Global => (In_Out => (train, Ada.Text_IO.File_System));

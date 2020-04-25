@@ -73,7 +73,7 @@ is
             end if;
          end if;
       end if;
-      Put_Line("Energy produced:"& train.energy'Image & " train's electricity: "&train.train_reactor.temp'Image);
+      Put_Line("Reactor's temperature: "&train.train_reactor.temp'Image);
    end produceElectricity;
 
    procedure startTrain is
@@ -90,11 +90,19 @@ is
       Put_Line("Train was stopped.");
    end stopTrain;
 
+   procedure setMaxSpeed is
+   begin
+      train.maxSpeedAvailable := Integer(train.energy) - (5 * Integer(train.carriages));
+   end setMaxSpeed;
+
    procedure increSpeed is
    begin
-      if (train.speed < MAXSPEED) then
+      if (train.speed < MAXSPEED and then train.speed < train.maxSpeedAvailable) then
          train.speed := train.speed + 1;
-         Put_Line("Train speed:"& train.speed'Image);
+         Put("Max train speed:"& train.maxSpeedAvailable'Image);
+         Put_Line(" | Actual speed: "& train.speed'Image);
+      else
+         Put_Line("SPEED LIMIT REACHED");
       end if;
    end increSpeed;
 
@@ -111,9 +119,9 @@ is
       -- water supply starts at 100, can be used until 0
       --  1 water unit reduces heat by 10
       if (train.train_reactor.water > WaterSupply'First and then
-         train.train_reactor.temp > 10) then
+         train.train_reactor.temp >= 200) then
          train.train_reactor.water := train.train_reactor.water - 1;
-         train.train_reactor.temp := train.train_reactor.temp - 10;
+         train.train_reactor.temp := train.train_reactor.temp - 20;
          Put_Line("Using water supply. Water left: "&train.train_reactor.water'Image
                  & " Reactor temp: "  & train.train_reactor.temp'Image);
       end if;
