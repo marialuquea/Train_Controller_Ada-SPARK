@@ -118,13 +118,16 @@ is
    begin
       -- water supply starts at 100, can be used until 0
       --  1 water unit reduces heat by 10
-      if (train.train_reactor.water > WaterSupply'First and then
-         train.train_reactor.temp >= 200) then
-         train.train_reactor.water := train.train_reactor.water - 1;
-         train.train_reactor.temp := train.train_reactor.temp - 20;
-         Put_Line("Using water supply. Water left: "&train.train_reactor.water'Image
-                 & " Reactor temp: "  & train.train_reactor.temp'Image);
+      if (train.train_reactor.water > WaterSupply'First + 1 and then
+          train.train_reactor.temp >= 200) then
+            train.train_reactor.water := train.train_reactor.water - 2;
+            train.train_reactor.temp := train.train_reactor.temp - 50;
+            Put_Line("Using water supply. Water left: "&train.train_reactor.water'Image);
+      elsif (train.train_reactor.water = 0 and then train.train_reactor.temp >= 200) then
+         stopTrain;
+         Put_Line("NO MORE WATER - TRAIN WAS STOPPED - REACTOR OVERHEATED");
       end if;
+
    end useWater;
 
    procedure rechargeWater is

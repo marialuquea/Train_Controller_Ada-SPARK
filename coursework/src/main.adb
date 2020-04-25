@@ -99,9 +99,10 @@ procedure Main is
             else rechargeWater;
             end if;
          elsif (inp = "7") then printOptions;
+         elsif (inp = "8") then abort Electric; abort CheckHeat; exit;
          else abort Electric; abort CheckHeat; exit;
          end if;
-         delay 0.1;
+         delay 1.0;
       end loop;
    end Maria;
 
@@ -113,18 +114,18 @@ procedure Main is
             setMaxSpeed;
             increSpeed;
          end if;
-         delay 1.0;
+         delay 0.5;
       end loop;
    end Electric;
 
    task body CheckHeat is
    begin
       loop
-         if (train.train_reactor.temp >= 200) then
+         if (train.isMoving = True and then train.train_reactor.temp >= 200) then
             overHeat;
             useWater;
          end if;
-         delay 1.0;
+         delay 0.5;
       end loop;
    end CheckHeat;
 

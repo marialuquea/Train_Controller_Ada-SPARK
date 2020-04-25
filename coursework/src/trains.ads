@@ -5,8 +5,8 @@ is
 
    type ControlRods is range 1..5;
    type Electricity is range 0..100;
-   type WaterSupply is range 0..100;
-   type ReactorTemperature is range 0..1000;
+   type WaterSupply is range 0..10;
+   type ReactorTemperature is range 0..300;
    type ReactorHeat is (Normal, Overheated);
    type Moving is (True, False);
    type IsLoaded is (Loaded, Unloaded); -- offline for maintenance
@@ -32,14 +32,14 @@ is
    end record;
 
    -- Initialising global variables
-   reactor : Reactors := (c_rods => 5,
-                         water => 100,
-                         temp => 0,
+   reactor : Reactors := (c_rods => ControlRods'Last,
+                         water => WaterSupply'Last,
+                         temp => ReactorTemperature'First,
                          overheat => Normal,
                          loaded => Loaded);
    train : Trains := (train_reactor => reactor,
-                      carriages => 0,
-                      energy => 0,
+                      carriages => Carriage'First,
+                      energy => Electricity'First,
                       speed => 0,
                       maxSpeedAvailable => 0,
                       isMoving => False);
