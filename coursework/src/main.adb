@@ -3,8 +3,6 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 procedure Main is
 
---     Str : String (1..2);
---     Last : Natural;
    inp : String (1..1);
    last : Integer := 80;
 

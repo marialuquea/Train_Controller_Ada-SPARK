@@ -35,7 +35,8 @@ is
 
    procedure addCarriage is
    begin
-      if (train.speed = 0 and then train.carriages < Carriage'Last) then
+      if (train.speed = 0 and then train.carriages < Carriage'Last
+          and then train.isMoving = False) then
          train.carriages := train.carriages + 1;
          Put_Line("Carriage added:"& train.carriages'Image);
       end if;
@@ -140,7 +141,7 @@ is
    procedure rechargeWater is
    begin
       -- when water supply ends, if train is not moving you can recharge it
-      if (train.speed = 0) then
+      if (train.speed = 0 and then train.isMoving = False) then
          train.train_reactor.water := WaterSupply'Last;
          Put_Line("Water recharged: "&train.train_reactor.water'Image);
       end if;

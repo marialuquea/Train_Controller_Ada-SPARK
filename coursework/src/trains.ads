@@ -68,14 +68,14 @@ is
 
    procedure removeControlRod with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => Invariant
-       and then train.train_reactor.c_rods > ControlRods'First,
+     Pre => train.train_reactor.c_rods > ControlRods'First,
      Post => train.train_reactor.c_rods = train.train_reactor.c_rods'Old - 1;
 
    procedure addCarriage with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => train.speed = 0
-       and then train.carriages < Carriage'Last,
+       and then train.carriages < Carriage'Last
+       and then train.isMoving = False,
      Post => train.carriages = train.carriages'Old + 1;
 
    procedure removeCarriage with
@@ -85,12 +85,12 @@ is
 
    procedure setMaxSpeed with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.isMoving = True;
+     Pre => train.isMoving = True,
+     Post => train.isMoving = True or train.isMoving = False;
 
    procedure produceElectricity with
      Global => (In_Out => train),
      Pre => train.train_reactor.temp < ReactorTemperature'Last - 5
-       and then train.train_reactor.c_rods >= ControlRods'First
        and then train.isMoving = True
        and then train.speed < MAXSPEED
        and then train.speed < train.maxSpeedAvailable
@@ -108,6 +108,7 @@ is
 
    procedure stopTrain with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.isMoving = True or train.isMoving = False,
      Post => train.speed = 0
        and then train.energy = 0
        and then train.isMoving = False
@@ -140,7 +141,8 @@ is
 
    procedure rechargeWater with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.speed = 0,
+     Pre => train.speed = 0
+       and then train.isMoving = False,
      Post => train.train_reactor.water = WaterSupply'Last;
 
 end trains;
