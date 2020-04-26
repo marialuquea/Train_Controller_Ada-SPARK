@@ -11,15 +11,17 @@ is
    type Moving is (True, False);
    type IsLoaded is (Loaded, Unloaded); -- offline for maintenance
    type Carriage is range 0..5;
+   type RadioActiveness is range 0..50;
 
    MAXSPEED : constant := 100;
 
    type Reactors is record
-      c_rods   : ControlRods;
-      water    : WaterSupply;
-      temp     : ReactorTemperature;
-      overheat : ReactorHeat;
-      loaded   : IsLoaded;
+      c_rods      : ControlRods;
+      water       : WaterSupply;
+      temp        : ReactorTemperature;
+      overheat    : ReactorHeat;
+      loaded      : IsLoaded;
+      radioActive : RadioActiveness;
    end record;
 
    type Trains is record
@@ -36,7 +38,8 @@ is
                          water => WaterSupply'Last,
                          temp => ReactorTemperature'First,
                          overheat => Normal,
-                         loaded => Loaded);
+                         loaded => Loaded,
+                         radioActive => RadioActiveness'First);
    train : Trains := (train_reactor => reactor,
                       carriages => Carriage'First,
                       energy => Electricity'First,
@@ -88,16 +91,18 @@ is
      Pre => train.isMoving = True,
      Post => train.isMoving = True or train.isMoving = False;
 
-   procedure produceElectricity with
+   procedure reactorOn with
      Global => (In_Out => train),
      Pre => train.train_reactor.temp < ReactorTemperature'Last - 5
        and then train.isMoving = True
        and then train.speed < MAXSPEED
        and then train.speed < train.maxSpeedAvailable
        and then train.train_reactor.loaded = Loaded
-       and then Invariant,
+       and then Invariant
+       and then train.train_reactor.radioActive < RadioActiveness'Last,
      Post => train.train_reactor.temp > train.train_reactor.temp'Old
-       and then train.energy /= 0;
+       and then train.energy /= 0
+       and then train.train_reactor.radioActive = train.train_reactor.radioActive'Old + 1;
 
    procedure startTrain with
      Global => (In_Out => train),
@@ -144,5 +149,20 @@ is
      Pre => train.speed = 0
        and then train.isMoving = False,
      Post => train.train_reactor.water = WaterSupply'Last;
+
+   procedure radioActiveWaste with
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.train_reactor.radioActive = RadioActiveness'Last,
+     Post => train.speed = 0
+       and then train.energy = 0
+       and then train.isMoving = False
+       and then train.train_reactor.temp = ReactorTemperature'First
+       and then train.maxSpeedAvailable = 0;
+
+   procedure dischargeWaste with
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.speed = 0
+       and then train.isMoving = False,
+     Post => train.train_reactor.radioActive = RadioActiveness'First;
 
 end trains;

@@ -9,18 +9,21 @@ procedure Main is
    procedure printTrain is
    begin
       Put_Line("");
-      Put_Line("-----TRAIN INFO-----");
-      Put_Line("    carriages:     "& train.carriages'Image);
-      Put_Line("    electricity:   "& train.energy'Image);
-      Put_Line("    speed:         "& train.speed'Image);
-      Put_Line("    max speed:     "& train.maxSpeedAvailable'Image);
-      Put_Line("----REACTOR INFO-----");
-      Put_Line("    control rods:  "& train.train_reactor.c_rods'Image);
-      Put_Line("    water:         "& train.train_reactor.water'Image);
-      Put_Line("    temperature:   "& train.train_reactor.temp'Image);
-      Put_Line("    overheated:    "&train.train_reactor.overheat'Image);
-      Put_Line("    reactor state: "&train.train_reactor.loaded'Image);
-      Put_Line("");
+      Put_Line("  ----------------------------------------");
+      Put_Line("  |        TRAIN           |");
+      Put_Line("  |    carriages:          |"& train.carriages'Image);
+      Put_Line("  |    electricity:        |"& train.energy'Image);
+      Put_Line("  |    speed:              |"& train.speed'Image);
+      Put_Line("  |    max speed:          |"& train.maxSpeedAvailable'Image);
+      Put_Line("  |---------------------------------------");
+      Put_Line("  |       REACTOR          |");
+      Put_Line("  |    control rods:       |"& train.train_reactor.c_rods'Image);
+      Put_Line("  |    water:              |"& train.train_reactor.water'Image);
+      Put_Line("  |    temperature:        |"& train.train_reactor.temp'Image);
+      Put_Line("  |    overheated:         |"&train.train_reactor.overheat'Image);
+      Put_Line("  |    reactor state:      |"&train.train_reactor.loaded'Image);
+      Put_Line("  |    radioactive waste:  |"&train.train_reactor.radioActive'Image);
+      Put_Line("  ----------------------------------------");
    end printTrain;
 
    procedure printTitle is
@@ -37,22 +40,23 @@ procedure Main is
 
    procedure printOptions is
    begin
-      Put_Line("  ---------------------------");
-      Put_Line("  |         Options:        |");
-      Put_Line("  | 1 - See train info      |");
-      Put_Line("  | 2 - Manage carriages    |");
-      Put_Line("  | 3 - Load/Unload reactor |");
-      Put_Line("  | 4 - Manage control rods |");
-      Put_Line("  | 5 - Start/Stop Train    |");
-      Put_Line("  | 6 - Recharge water      |");
-      Put_Line("  | 7 - Open this pannel    |");
-      Put_Line("  | 8 - Exit                |");
-      Put_Line("  ---------------------------");
+      Put_Line("  ------------------------------------------");
+      Put_Line("  |         Options:                       |");
+      Put_Line("  | 1 - See train info                     |");
+      Put_Line("  | 2 - Manage carriages                   |");
+      Put_Line("  | 3 - Load/Unload reactor                |");
+      Put_Line("  | 4 - Manage control rods                |");
+      Put_Line("  | 5 - Start/Stop Train                   |");
+      Put_Line("  | 6 - Manage water and radioactive waste |");
+      Put_Line("  | 7 - Open this pannel                   |");
+      Put_Line("  | 8 - Exit                               |");
+      Put_Line("  ------------------------------------------");
    end printOptions;
 
    task Maria;
    task Electric;
    task CheckHeat;
+   task checkRadioactiveWaste;
 
    task body Maria is
    begin
@@ -94,13 +98,20 @@ procedure Main is
             else Put_Line("Load reactor to start train.");
             end if;
          elsif (inp = "6") then
-            if (train.isMoving = true) then
-               Put_Line("Can't recharge water while train is moving. Enter 5 to stop train.");
-            else rechargeWater;
+            Put_Line("w - recharge water supply");
+            Put_Line("y - discharge readioactive waste");
+            Get(inp);
+            if(inp = "w") then
+               if (train.speed = 0) then rechargeWater;
+               else Put_Line("Can't recharge water while train is moving. Enter 5 to stop train.");
+               end if;
+            elsif (inp = "y") then dischargeWaste;
             end if;
+
+
          elsif (inp = "7") then printOptions;
-         elsif (inp = "8") then abort Electric; abort CheckHeat; exit;
-         else abort Electric; abort CheckHeat; exit;
+         elsif (inp = "8") then abort Electric; abort CheckHeat; abort checkRadioactiveWaste; exit;
+         else abort Electric; abort CheckHeat; abort checkRadioactiveWaste; exit;
          end if;
       end loop;
    end Maria;
@@ -109,12 +120,13 @@ procedure Main is
    begin
       loop
          if (train.isMoving = True) then
-            produceElectricity;
+            reactorOn;
             setMaxSpeed;
             increSpeed;
             Put_Line("Max train speed:" & train.maxSpeedAvailable'Image
-                     & " | Actual speed: " & train.speed'Image
-                     & " | Reactor temperature: " & train.train_reactor.temp'Image);
+                     & "  | Actual speed: " & train.speed'Image
+                     & "  | Reactor temperature: " & train.train_reactor.temp'Image
+                     & "  | Radioactive waste: " & train.train_reactor.radioActive'Image);
          end if;
          delay 0.5;
       end loop;
@@ -131,6 +143,15 @@ procedure Main is
       end loop;
    end CheckHeat;
 
+   task body checkRadioactiveWaste is
+   begin
+      loop
+         if (train.isMoving = True) then
+            radioActiveWaste;
+         end if;
+         delay 0.5;
+      end loop;
+   end checkRadioactiveWaste;
 
 begin
    --  Insert code here.

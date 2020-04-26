@@ -1,4 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Numerics.Discrete_Random;
 
 package body trains with SPARK_Mode
 is
@@ -50,31 +51,29 @@ is
       end if;
    end removeCarriage;
 
-   procedure produceElectricity is
+   procedure reactorOn is
    begin
-      if (train.train_reactor.temp < ReactorTemperature'Last - 5) then
+      if (train.train_reactor.temp < ReactorTemperature'Last - 5 and then
+         train.train_reactor.radioActive < RadioActiveness'Last) then
+         train.train_reactor.radioActive := train.train_reactor.radioActive + 1;
          if (train.train_reactor.c_rods = 1) then
             train.energy := Electricity'Last;
             train.train_reactor.temp := train.train_reactor.temp + 5;
-         else if (train.train_reactor.c_rods = 2) then
-               train.energy := (Electricity'Last * 80/100);
-               train.train_reactor.temp := train.train_reactor.temp + 4;
-            else if (train.train_reactor.c_rods = 3) then
-                  train.energy := (Electricity'Last * 60/100);
-                  train.train_reactor.temp := train.train_reactor.temp + 3;
-               else if (train.train_reactor.c_rods = 4) then
-                     train.energy := (Electricity'Last * 40/100);
-                     train.train_reactor.temp := train.train_reactor.temp + 2;
-                  else if (train.train_reactor.c_rods = 5) then
-                        train.energy := (Electricity'Last * 20/100);
-                        train.train_reactor.temp := train.train_reactor.temp + 1;
-                     end if;
-                  end if;
-               end if;
-            end if;
+         elsif (train.train_reactor.c_rods = 2) then
+            train.energy := (Electricity'Last * 80/100);
+            train.train_reactor.temp := train.train_reactor.temp + 4;
+         elsif (train.train_reactor.c_rods = 3) then
+            train.energy := (Electricity'Last * 60/100);
+            train.train_reactor.temp := train.train_reactor.temp + 3;
+         elsif (train.train_reactor.c_rods = 4) then
+            train.energy := (Electricity'Last * 40/100);
+            train.train_reactor.temp := train.train_reactor.temp + 2;
+         elsif (train.train_reactor.c_rods = 5) then
+            train.energy := (Electricity'Last * 20/100);
+            train.train_reactor.temp := train.train_reactor.temp + 1;
          end if;
       end if;
-   end produceElectricity;
+   end reactorOn;
 
    procedure startTrain is
    begin
@@ -146,5 +145,22 @@ is
          Put_Line("Water recharged: "&train.train_reactor.water'Image);
       end if;
    end rechargeWater;
+
+   procedure radioActiveWaste is
+   begin
+      if (train.train_reactor.radioActive = RadioActiveness'Last) then
+         Put_Line("");
+         Put_Line("RADIOACTIVE LEVEL REACHED - EMERGENCY STOP - GET RID OF RADIOACTIVE WASTE TO CONTINUE.");
+         stopTrain;
+      end if;
+   end radioActiveWaste;
+
+   procedure dischargeWaste is
+   begin
+      if (train.speed = 0 and then train.isMoving = False) then
+         train.train_reactor.radioActive := RadioActiveness'First;
+         Put_Line("Radioactive waste discharged: "&train.train_reactor.radioActive'Image);
+      end if;
+   end dischargeWaste;
 
 end trains;
