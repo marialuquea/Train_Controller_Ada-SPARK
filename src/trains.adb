@@ -45,7 +45,8 @@ is
 
    procedure removeCarriage is
    begin
-      if (train.carriages > Carriage'First) then
+      if (train.carriages > Carriage'First
+          and then train.carriages > train.occupiedCarriages) then
          train.carriages := train.carriages - 1;
          Put_Line("Carriage removed:"& train.carriages'Image);
       end if;
@@ -107,6 +108,7 @@ is
       if (train.speed < MAXSPEED and then train.speed < train.maxSpeedAvailable
          and then train.isMoving = True and then train.train_reactor.loaded = Loaded) then
          train.speed := train.speed + 1;
+         train.isMoving := True;
       else
          Put_Line("SPEED LIMIT REACHED");
       end if;
@@ -162,5 +164,38 @@ is
          Put_Line("Radioactive waste discharged: "&train.train_reactor.radioActive'Image);
       end if;
    end dischargeWaste;
+
+   function occupiedCars (x : Passenger) return Carriage is
+   begin
+      if (x <= 50 and x > 40) then return 5; end if;
+      if (x <= 40 and x > 30) then return 4; end if;
+      if (x <= 30 and x > 20) then return 3; end if;
+      if (x <= 20 and x > 10) then return 2; end if;
+      if (x <= 10 and x > 0) then return 1; end if;
+      if (x = 0) then return 0; end if;
+      return 0;
+   end occupiedCars;
+
+   procedure addPassenger is
+   begin
+      if (train.carriages > Carriage'First and then train.speed = 0 and then
+          Integer(train.passengers) / Integer(train.carriages) < 10 and then
+         train.isMoving = False) then
+         train.passengers := train.passengers + 1;
+         train.occupiedCarriages := occupiedCars(train.passengers);
+         Put_Line("Passenger "& train.passengers'Image & " added to carriage "&train.occupiedCarriages'Image);
+      end if;
+
+   end addPassenger;
+
+   procedure removePassenger is
+   begin
+      if (train.carriages > 0 and then train.speed = 0 and then
+         train.passengers > Passenger'First and then train.isMoving = False) then
+         train.passengers := train.passengers - 1;
+         train.occupiedCarriages := occupiedCars(train.passengers);
+         Put_Line("Passenger removed. Left: "& train.passengers'Image);
+      end if;
+   end removePassenger;
 
 end trains;

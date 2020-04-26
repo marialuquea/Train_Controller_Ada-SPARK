@@ -12,17 +12,19 @@ procedure Main is
       Put_Line("  ----------------------------------------");
       Put_Line("  |        TRAIN           |");
       Put_Line("  |    carriages:          |"& train.carriages'Image);
+      Put_Line("  |    occupied carriages: |"& train.occupiedCarriages'Image);
       Put_Line("  |    electricity:        |"& train.energy'Image);
       Put_Line("  |    speed:              |"& train.speed'Image);
       Put_Line("  |    max speed:          |"& train.maxSpeedAvailable'Image);
+      Put_Line("  |    passengers:         |"& train.passengers'Image);
       Put_Line("  |---------------------------------------");
       Put_Line("  |       REACTOR          |");
       Put_Line("  |    control rods:       |"& train.train_reactor.c_rods'Image);
       Put_Line("  |    water:              |"& train.train_reactor.water'Image);
       Put_Line("  |    temperature:        |"& train.train_reactor.temp'Image);
-      Put_Line("  |    overheated:         |"&train.train_reactor.overheat'Image);
-      Put_Line("  |    reactor state:      |"&train.train_reactor.loaded'Image);
-      Put_Line("  |    radioactive waste:  |"&train.train_reactor.radioActive'Image);
+      Put_Line("  |    overheated:         |"& train.train_reactor.overheat'Image);
+      Put_Line("  |    reactor state:      |"& train.train_reactor.loaded'Image);
+      Put_Line("  |    radioactive waste:  |"& train.train_reactor.radioActive'Image);
       Put_Line("  ----------------------------------------");
    end printTrain;
 
@@ -43,7 +45,7 @@ procedure Main is
       Put_Line("  ------------------------------------------");
       Put_Line("  |         Options:                       |");
       Put_Line("  | 1 - See train info                     |");
-      Put_Line("  | 2 - Manage carriages                   |");
+      Put_Line("  | 2 - Manage carriages and passengers    |");
       Put_Line("  | 3 - Load/Unload reactor                |");
       Put_Line("  | 4 - Manage control rods                |");
       Put_Line("  | 5 - Start/Stop Train                   |");
@@ -72,12 +74,25 @@ procedure Main is
          elsif (inp = "2") then
             Put_Line("a - add Carriage");
             Put_Line("r - remove Carriage");
+            Put_Line("p - add Passenger");
+            Put_Line("g - remove Passenger");
             Get(inp);
             if(inp = "a") then
                if (train.speed = 0) then addCarriage;
                else Put_Line("You can only add carriages if train is not moving.");
                end if;
-            elsif (inp = "r") then removeCarriage;
+            elsif (inp = "r") then
+               if (train.carriages > Carriage'First
+                   and then train.carriages > train.occupiedCarriages) then
+                  removeCarriage;
+               else Put_Line("Cannot remove carriages occupied by passengers.");
+               end if;
+            elsif (inp = "p" and then train.speed = 0) then
+               if (train.carriages > 0 and then Integer(train.passengers) / Integer(train.carriages) < 10)
+               then addPassenger;
+               else Put_Line("No space - add carriage to add more passengers");
+               end if;
+            elsif (inp = "g" and then train.speed = 0) then removePassenger;
             end if;
          elsif (inp = "3") then
             if (train.train_reactor.loaded = Loaded and then train.speed = 0) then
