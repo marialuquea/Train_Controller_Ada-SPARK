@@ -36,8 +36,7 @@ is
 
    procedure addCarriage is
    begin
-      if (train.speed = 0 and then train.carriages < Carriage'Last
-          and then train.isMoving = False) then
+      if (train.speed = 0 and then train.carriages < Carriage'Last) then
          train.carriages := train.carriages + 1;
          Put_Line("Carriage added:"& train.carriages'Image);
       end if;
@@ -78,8 +77,8 @@ is
 
    procedure startTrain is
    begin
-      if (train.isMoving = False and then Invariant and then train.train_reactor.loaded = Loaded) then
-         train.isMoving := True;
+      if (Invariant and then train.train_reactor.loaded = Loaded) then
+         train.speed := 1;
       end if;
    end startTrain;
 
@@ -87,7 +86,6 @@ is
    begin
       train.speed := 0;
       train.energy := 0;
-      train.isMoving := False;
       train.maxSpeedAvailable := 0;
       train.train_reactor.temp := ReactorTemperature'First;
       Put_Line("Train was stopped.");
@@ -106,9 +104,8 @@ is
    procedure increSpeed is
    begin
       if (train.speed < MAXSPEED and then train.speed < train.maxSpeedAvailable
-         and then train.isMoving = True and then train.train_reactor.loaded = Loaded) then
+         and then train.train_reactor.loaded = Loaded) then
          train.speed := train.speed + 1;
-         train.isMoving := True;
       else
          Put_Line("SPEED LIMIT REACHED");
       end if;
@@ -142,7 +139,7 @@ is
    procedure rechargeWater is
    begin
       -- when water supply ends, if train is not moving you can recharge it
-      if (train.speed = 0 and then train.isMoving = False) then
+      if (train.speed = 0) then
          train.train_reactor.water := WaterSupply'Last;
          Put_Line("Water recharged: "&train.train_reactor.water'Image);
       end if;
@@ -150,7 +147,8 @@ is
 
    procedure radioActiveWaste is
    begin
-      if (train.train_reactor.radioActive = RadioActiveness'Last) then
+      if (train.train_reactor.radioActive = RadioActiveness'Last
+         and then train.speed = 0) then
          Put_Line("");
          Put_Line("RADIOACTIVE LEVEL REACHED - EMERGENCY STOP - GET RID OF RADIOACTIVE WASTE TO CONTINUE.");
          stopTrain;
@@ -159,7 +157,7 @@ is
 
    procedure dischargeWaste is
    begin
-      if (train.speed = 0 and then train.isMoving = False) then
+      if (train.speed = 0) then
          train.train_reactor.radioActive := RadioActiveness'First;
          Put_Line("Radioactive waste discharged: "&train.train_reactor.radioActive'Image);
       end if;
@@ -179,8 +177,7 @@ is
    procedure addPassenger is
    begin
       if (train.carriages > Carriage'First and then train.speed = 0 and then
-          Integer(train.passengers) / Integer(train.carriages) < 10 and then
-         train.isMoving = False) then
+          Integer(train.passengers) / Integer(train.carriages) < 10) then
          train.passengers := train.passengers + 1;
          train.occupiedCarriages := occupiedCars(train.passengers);
          Put_Line("Passenger "& train.passengers'Image & " added to carriage "&train.occupiedCarriages'Image);
@@ -191,7 +188,7 @@ is
    procedure removePassenger is
    begin
       if (train.carriages > 0 and then train.speed = 0 and then
-         train.passengers > Passenger'First and then train.isMoving = False) then
+         train.passengers > Passenger'First) then
          train.passengers := train.passengers - 1;
          train.occupiedCarriages := occupiedCars(train.passengers);
          Put_Line("Passenger removed. Left: "& train.passengers'Image);

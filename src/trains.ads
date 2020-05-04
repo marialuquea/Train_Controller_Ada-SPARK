@@ -8,8 +8,7 @@ is
    type WaterSupply is range 0..10;
    type ReactorTemperature is range 0..300;
    type ReactorHeat is (Normal, Overheated);
-   type Moving is (True, False);
-   type IsLoaded is (Loaded, Unloaded); -- offline for maintenance
+   type IsLoaded is (Loaded, Unloaded); -- unloaded for maintenance
    type Carriage is range 0..5;
    type RadioActiveness is range 0..50;
    type Passenger is range 0..50;
@@ -32,7 +31,6 @@ is
       energy            : Electricity;
       speed             : Integer;
       maxSpeedAvailable : Integer;
-      isMoving          : Moving;
       passengers        : Passenger;
    end record;
 
@@ -49,8 +47,7 @@ is
                       energy => Electricity'First,
                       speed => 0,
                       maxSpeedAvailable => 0,
-                      isMoving => False,
-                      passengers => 0);
+                      passengers => Passenger'First);
 
    -- Invariants that must always be true
    function Invariant return Boolean is
@@ -82,8 +79,7 @@ is
    procedure addCarriage with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => train.speed = 0
-       and then train.carriages < Carriage'Last
-       and then train.isMoving = False,
+       and then train.carriages < Carriage'Last,
      Post => train.carriages = train.carriages'Old + 1;
 
    procedure removeCarriage with
@@ -92,15 +88,9 @@ is
        and then train.carriages > train.occupiedCarriages,
      Post => train.carriages = train.carriages'Old - 1;
 
-   procedure setMaxSpeed with
-     Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.isMoving = True,
-     Post => train.isMoving = True or train.isMoving = False;
-
    procedure reactorOn with
      Global => (In_Out => train),
      Pre => train.train_reactor.temp < ReactorTemperature'Last - 5
-       and then train.isMoving = True
        and then train.speed < MAXSPEED
        and then train.speed < train.maxSpeedAvailable
        and then train.train_reactor.loaded = Loaded
@@ -112,29 +102,31 @@ is
 
    procedure startTrain with
      Global => (In_Out => train),
-     Pre => train.isMoving = False
+     Pre => train.speed = 0
        and then Invariant
        and then train.train_reactor.loaded = Loaded,
-     Post => train.isMoving = True;
+     Post => train.speed > 0;
 
    procedure stopTrain with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.isMoving = True or train.isMoving = False,
+     Pre => train.speed >= 0 or train.speed = 0,
      Post => train.speed = 0
        and then train.energy = 0
-       and then train.isMoving = False
        and then train.train_reactor.temp = ReactorTemperature'First
-       and then train.maxSpeedAvailable = 0;
+     and then train.maxSpeedAvailable = 0;
+
+   procedure setMaxSpeed with
+     Global => (In_Out => (train, Ada.Text_IO.File_System)),
+     Pre => train.speed >= 0,
+     Post => train.speed >= 0;
 
    procedure increSpeed with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => Invariant
        and then train.train_reactor.loaded = Loaded
        and then train.speed < MAXSPEED
-       and then train.speed < train.maxSpeedAvailable
-       and then train.isMoving = True,
-     Post => train.speed = train.speed'Old + 1
-       and then train.isMoving = True;
+       and then train.speed < train.maxSpeedAvailable,
+     Post => train.speed = train.speed'Old + 1;
 
    procedure overHeat with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
@@ -147,29 +139,27 @@ is
    procedure useWater with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => Invariant
-       and then train.isMoving = True
+       and then train.speed > 0
        and then train.train_reactor.temp >= 200,
      Post => train.train_reactor.temp <= train.train_reactor.temp'Old;
 
    procedure rechargeWater with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.speed = 0
-       and then train.isMoving = False,
+     Pre => train.speed = 0,
      Post => train.train_reactor.water = WaterSupply'Last;
 
    procedure radioActiveWaste with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.train_reactor.radioActive = RadioActiveness'Last,
+     Pre => train.train_reactor.radioActive = RadioActiveness'Last
+       and then train.speed = 0,
      Post => train.speed = 0
        and then train.energy = 0
-       and then train.isMoving = False
        and then train.train_reactor.temp = ReactorTemperature'First
        and then train.maxSpeedAvailable = 0;
 
    procedure dischargeWaste with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.speed = 0
-       and then train.isMoving = False,
+     Pre => train.speed = 0,
      Post => train.train_reactor.radioActive = RadioActiveness'First;
 
    function occupiedCars (x : Passenger) return Carriage;
@@ -178,7 +168,6 @@ is
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => train.carriages > Carriage'First
        and then train.speed = 0
-       and then train.isMoving = False
        and then Integer(train.passengers) / Integer(train.carriages) < 10,
      Post => train.passengers = train.passengers'Old + 1
        and then train.occupiedCarriages >= Carriage'First;
@@ -187,7 +176,6 @@ is
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => train.carriages > 0
        and then train.speed = 0
-       and then train.isMoving = False
        and then train.passengers > Passenger'First,
      Post => train.passengers = train.passengers'Old - 1
        and then train.occupiedCarriages <= Carriage'Last;
