@@ -14,6 +14,7 @@ is
    type Passenger is range 0..50;
 
    MAXSPEED : constant := 100;
+   MAXTEMP : constant := 200;
 
    type Reactors is record
       c_rods      : ControlRods;
@@ -109,7 +110,7 @@ is
 
    procedure stopTrain with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.speed >= 0 or train.speed = 0,
+     Pre => train.speed >= 0 or train.speed <= 0,
      Post => train.speed = 0
        and then train.energy = 0
        and then train.train_reactor.temp = ReactorTemperature'First
@@ -140,18 +141,20 @@ is
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
      Pre => Invariant
        and then train.speed > 0
-       and then train.train_reactor.temp >= 200,
-     Post => train.train_reactor.temp <= train.train_reactor.temp'Old;
+       and then train.train_reactor.temp >= MAXTEMP
+       and then train.train_reactor.water >= 2,
+     Post => train.train_reactor.temp = train.train_reactor.temp'Old - 50
+       and then train.train_reactor.water = train.train_reactor.water'Old -2;
 
    procedure rechargeWater with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.speed = 0,
+     Pre => train.speed = 0
+       and then train.train_reactor.water < WaterSupply'Last,
      Post => train.train_reactor.water = WaterSupply'Last;
 
    procedure radioActiveWaste with
      Global => (In_Out => (train, Ada.Text_IO.File_System)),
-     Pre => train.train_reactor.radioActive = RadioActiveness'Last
-       and then train.speed = 0,
+     Pre => train.train_reactor.radioActive = RadioActiveness'Last,
      Post => train.speed = 0
        and then train.energy = 0
        and then train.train_reactor.temp = ReactorTemperature'First

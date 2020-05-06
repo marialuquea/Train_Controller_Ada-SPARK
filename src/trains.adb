@@ -113,7 +113,7 @@ is
 
    procedure overHeat is
    begin
-      if (train.train_reactor.temp >= 200) then
+      if (train.train_reactor.temp >= MAXTEMP) then
          train.train_reactor.overheat := Overheated;
          Put_Line("");
          Put_Line("REACTOR OVERHEATED: "&train.train_reactor.overheat'Image);
@@ -123,12 +123,12 @@ is
    procedure useWater is
    begin
       if (train.train_reactor.water > WaterSupply'First + 1 and then
-          train.train_reactor.temp >= 200) then
+          train.train_reactor.temp >= MAXTEMP) then
          train.train_reactor.water := train.train_reactor.water - 2;
          train.train_reactor.temp := train.train_reactor.temp - 50;
          Put_Line(" ");
          Put_Line("Using water supply. Water left: "&train.train_reactor.water'Image);
-      elsif (train.train_reactor.water = 0 and then train.train_reactor.temp >= 200) then
+      elsif (train.train_reactor.water = 0 and then train.train_reactor.temp >= MAXTEMP) then
          stopTrain;
          Put_Line(" ");
          Put_Line("NO MORE WATER - TRAIN WAS STOPPED - REACTOR OVERHEATED");
@@ -147,8 +147,7 @@ is
 
    procedure radioActiveWaste is
    begin
-      if (train.train_reactor.radioActive = RadioActiveness'Last
-         and then train.speed = 0) then
+      if (train.train_reactor.radioActive = RadioActiveness'Last) then
          Put_Line("");
          Put_Line("RADIOACTIVE LEVEL REACHED - EMERGENCY STOP - GET RID OF RADIOACTIVE WASTE TO CONTINUE.");
          stopTrain;
