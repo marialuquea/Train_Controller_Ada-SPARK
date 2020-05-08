@@ -107,7 +107,7 @@ procedure Main is
             elsif (inp = "r") then removeControlRod;
             end if;
          elsif (inp = "5") then
-            if (train.isMoving = True) then stopTrain;
+            if train.speed > 0 then stopTrain;
             elsif (train.train_reactor.loaded = Loaded) then
                startTrain;
             else Put_Line("Load reactor to start train.");
@@ -134,7 +134,7 @@ procedure Main is
    task body Electric is
    begin
       loop
-         if (train.isMoving = True) then
+         if (train.speed > 0) then
             reactorOn;
             setMaxSpeed;
             increSpeed;
@@ -150,7 +150,7 @@ procedure Main is
    task body CheckHeat is
    begin
       loop
-         if (train.isMoving = True and then train.train_reactor.temp >= 200) then
+         if (train.speed = 0 and then train.train_reactor.temp >= 200) then
             overHeat;
             useWater;
          end if;
@@ -161,7 +161,7 @@ procedure Main is
    task body checkRadioactiveWaste is
    begin
       loop
-         if (train.isMoving = True) then
+         if (train.speed > 0) then
             radioActiveWaste;
          end if;
          delay 0.5;
